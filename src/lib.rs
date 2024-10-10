@@ -1,7 +1,7 @@
 #![no_std]
 
 mod registers;
-use embedded_hal::blocking::i2c::{Write, WriteRead};
+use embedded_hal::i2c::I2c;
 use registers::{
     AutoCalibrationCompensationBackEmfReg, AutoCalibrationCompensationReg, BrakeTimeOffsetReg,
     Control1Reg, Control2Reg, Control3Reg, Control4Reg, Control5Reg, FeedbackControlReg, GoReg,
@@ -12,18 +12,18 @@ use registers::{
 pub use registers::{Effect, Library};
 
 /// A Texas instruments Drv2605 haptic motor driver for LRA and ERM motors
-pub struct Drv2605l<I2C, E>
+pub struct Drv2605l<I2C>
 where
-    I2C: WriteRead<Error = E> + Write<Error = E>,
+    I2C: I2c,
 {
     i2c: I2C,
     lra: bool,
 }
 
 #[allow(unused)]
-impl<I2C, E> Drv2605l<I2C, E>
+impl<I2C> Drv2605l<I2C>
 where
-    I2C: WriteRead<Error = E> + Write<Error = E>,
+    I2C: I2c,
 {
     /// Returns a calibrated Drv2605l device configured to standby mode for
     /// power savings. Closed loop is hardcoded for all motors and modes except
@@ -345,6 +345,18 @@ where
     fn is_otp(&mut self) -> Result<bool, DrvError> {
         let reg4: Control4Reg = self.read()?;
         Ok(reg4.otp_status())
+    }
+}
+
+impl<I2C> Drv2605l<I2C>
+where
+    I2C: I2c + embedded_hal_async::i2c::I2c,
+{
+    pub async fn set_rom_single_async(&mut self, rom: Effect) -> Result<(), DrvError> {
+        let buf: [u8; 3] = [Waveform0Reg::ADDRESS, rom.into(), Effect::Stop.into()];
+        embedded_hal_async::i2c::I2c::write(&mut self.i2c, ADDRESS, &buf)
+            .await
+            .map_err(|_| DrvError::ConnectionError)
     }
 }
 
