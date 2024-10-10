@@ -9,7 +9,7 @@ use registers::{
     RealTimePlaybackInputReg, Register, StatusReg, SustainTimeOffsetNegativeReg,
     SustainTimeOffsetPositiveReg, Waveform0Reg,
 };
-pub use registers::{Effect, Library};
+pub use registers::{Effect, Library, Mode as TriggerMode};
 
 /// A Texas instruments Drv2605 haptic motor driver for LRA and ERM motors
 pub struct Drv2605l<I2C>
@@ -101,7 +101,7 @@ where
                 m.set_mode(registers::Mode::PwmInputAndAnalogInput as u8);
                 self.write(m)
             }
-            Mode::Rom(library, options) => {
+            Mode::Rom(library, options, trigger_mode) => {
                 let mut ctrl5: Control5Reg = self.read()?;
                 ctrl5.set_playback_interval(options.decrease_playback_interval);
                 self.write(ctrl5)?;
@@ -128,7 +128,7 @@ where
                 lib.set_library_selection(library as u8);
                 self.write(lib)?;
 
-                m.set_mode(registers::Mode::InternalTrigger as u8);
+                m.set_mode(trigger_mode as u8);
                 self.write(m)
             }
             Mode::Analog => {
@@ -488,7 +488,7 @@ pub enum Mode {
     /// all ERM libraries are tuned for open loop.
     ///
     /// Use set rom setters and then GO bit to play an `Effect`
-    Rom(Library, RomParams),
+    Rom(Library, RomParams, TriggerMode),
     /// Enable Pulse Width Modulated mod (closed loop unidirectional )
     ///
     /// 0% full braking, 50% 1/2 Rated Voltage, 100% Rated Voltage
