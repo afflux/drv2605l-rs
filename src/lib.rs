@@ -362,7 +362,7 @@ where
 
 /// Possible runtime errors
 #[allow(unused)]
-#[derive(Debug)]
+#[derive(Clone, Copy, Debug)]
 pub enum DrvError {
     WrongMotorType,
     WrongDeviceId,
