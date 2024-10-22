@@ -338,7 +338,7 @@ where
             return Err(DrvError::CalibrationFailed);
         }
 
-        self.calibration()
+        defmt::dbg!(self.calibration())
     }
 
     /// Check if the device's LoadParams have been set in the nonvolatile memory
@@ -396,6 +396,7 @@ pub enum Calibration {
 
 /// Previously computed calibration parameters. Can be fetched after calibration
 /// and hardcoded during construction instead of auto calibration.
+#[derive(defmt::Format)]
 pub struct LoadParams {
     /// Auto-Calibration Compensation Result
     pub compensation: u8,
