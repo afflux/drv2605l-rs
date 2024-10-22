@@ -237,7 +237,7 @@ where
 
         Ok(LoadParams {
             back_emf_gain: feedback.bemf_gain(),
-            compenstation: compenstation.value(),
+            compensation: compenstation.value(),
             back_emf: back_emf.value(),
         })
     }
@@ -294,7 +294,7 @@ where
         fbcr.set_bemf_gain(load.back_emf_gain);
         self.write(fbcr)?;
 
-        let auto_cal_comp = AutoCalibrationCompensationReg(load.compenstation);
+        let auto_cal_comp = AutoCalibrationCompensationReg(load.compensation);
         self.write(auto_cal_comp)?;
 
         let back_emf = AutoCalibrationCompensationBackEmfReg(load.back_emf);
@@ -398,7 +398,7 @@ pub enum Calibration {
 /// and hardcoded during construction instead of auto calibration.
 pub struct LoadParams {
     /// Auto-Calibration Compensation Result
-    pub compenstation: u8,
+    pub compensation: u8,
     /// Auto-Calibration Back-EMF Result
     pub back_emf: u8,
     /// Auto-Calibration BEMF_GAIN Result
