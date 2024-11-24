@@ -409,7 +409,6 @@ pub struct LoadParams {
 /// Calibration configuration for both ERM and LRA motor types. Some params
 /// really need to be computed from the drv2605l and motor datasheets,
 /// especially for LRA motors
-#[non_exhaustive]
 pub struct CalibrationParams {
     /// Required: Datasheet 8.5.2.1 Rated Voltage Programming
     pub rated_voltage: u8,
